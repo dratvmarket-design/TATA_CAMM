@@ -1,132 +1,37 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>GESTION DE VENTE ULTRA PLUS</title>
-  <link rel="stylesheet" href="styles.css" />
-  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script defer src="app_ultra.js"></script>
+    <meta charset="UTF-8">
+    <title>TATA CAMM - Vente</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <div class="logo-line">
-      <div class="title">GESTION DE VENTE ULTRA PLUS</div>
-      <div class="brand">Tata CAMM Solaire</div>
-      <div class="subtitle">La sécurité sans limites</div>
-    </div>
-    <nav>
-      <button id="nav-dashboard" class="nav-btn active">Gérer produit</button>
-      <button id="nav-sale" class="nav-btn">Vente</button>
-      <button id="nav-history" class="nav-btn">Historique</button>
-    </nav>
-  </header>
+    <h1>TATA CAMM - Vente de produits</h1>
+    
+    <section id="vente">
+      <h2>Vendre un produit</h2>
 
-  <main>
-    <!-- PAGE 1 Dashboard -->
-    <section id="page-dashboard" class="page active">
-      <div class="card large">
-        <h2>Tableau de bord</h2>
-        <div class="stats">
-          <div>Nombre de produits: <span id="stat-count">0</span></div>
-          <div>Stock total: <span id="stat-stock">0</span></div>
-          <div>Valeur du stock (FCFA): <span id="stat-value">0</span></div>
-        </div>
-        <div class="actions">
-          <button id="btn-go-manage" class="primary">Gérer produit</button>
-          <button id="btn-go-sale" class="primary">Vente</button>
-          <button id="btn-go-history" class="primary">Historique</button>
-        </div>
+      <form id="venteForm">
+        <label for="produit">Produit :</label>
+        <input type="text" id="produit" name="produit" placeholder="Nom du produit" required />
 
-        <div class="chart-card">
-          <div class="chart-header">
-            <div>Visualisation</div>
-            <button id="btn-toggle-chart" class="secondary">Changer de vue</button>
-          </div>
-          <div style="position:relative;height:260px">
-            <canvas id="dashboardChart"></canvas>
-          </div>
-        </div>
-      </div>
+        <label for="quantite">Quantité :</label>
+        <input type="number" id="quantite" name="quantite" placeholder="Quantité" min="1" required />
+
+        <label for="prix">Prix (en GNF) :</label>
+        <input type="number" id="prix" name="prix" placeholder="Prix" min="0" required />
+
+        <label for="dateVente">Date de vente :</label>
+        <input type="date" id="dateVente" name="dateVente" required />
+
+        <button type="submit">Enregistrer la vente</button>
+      </form>
+
+      <h3>Historique des ventes</h3>
+      <ul id="historique"></ul>
     </section>
 
-    <!-- PAGE 2 Manage Products -->
-    <section id="page-manage" class="page">
-      <div class="card">
-        <h2>Ajouter / Modifier produit</h2>
-        <form id="product-form" autocomplete="off">
-          <input type="hidden" id="edit-id" value="">
-          <label>Nom du produit<input id="p-name" required></label>
-          <label>Description du produit<textarea id="p-desc"></textarea></label>
-          <label>Prix d'achat (FCFA)<input id="p-cost" type="number" min="0" value="0"></label>
-          <label>Prix de vente (FCFA)<input id="p-price" type="number" min="0" value="0"></label>
-          <label>Quantité<input id="p-qty" type="number" min="0" value="0"></label>
-          <label>Choisir une image<input id="p-img" type="file" accept="image/*"></label>
-          <div class="form-actions">
-            <button type="submit" class="primary">Enregistrer produit</button>
-            <button type="button" id="btn-delete-all" class="danger">Supprimer tous les produits</button>
-            <button type="button" id="btn-back-dashboard" class="secondary">Accueil</button>
-          </div>
-        </form>
-        <div class="list-card">
-          <h3>Liste des produits</h3>
-          <div id="product-list">Aucun produit enregistré</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- PAGE 3 Sale -->
-    <section id="page-sale" class="page">
-      <div class="card">
-        <h2>Vente / Facturation</h2>
-        <label>Produit<select id="sale-product"></select></label>
-        <label>Quantité<input id="sale-qty" type="number" min="1" value="1"></label>
-        <label>Ville du client<input id="sale-city"></label>
-        <label>Nom du client<input id="sale-name"></label>
-        <label>Numéro du client<input id="sale-phone" type="tel"></label>
-        <div class="form-actions">
-          <button id="btn-record-sale" class="primary" disabled>Enregistrer &amp; Facturer</button>
-          <button id="btn-sale-back" class="secondary">Accueil</button>
-        </div>
-        <div id="sale-msg" class="small-note"></div>
-      </div>
-    </section>
-
-    <!-- PAGE 4 History -->
-    <section id="page-history" class="page">
-      <div class="card">
-        <h2>Historique des ventes</h2>
-        <div id="sales-list">Aucune vente enregistrée</div>
-        <div class="form-actions history-actions">
-          <button id="btn-history-back" class="secondary">Accueil</button>
-          <button id="btn-clear-sales" class="danger">Effacer tout</button>
-          <button id="btn-export-pdf" class="export">Exporter en PDF</button>
-          <button id="btn-export-json" class="primary">Exporter données (.json)</button>
-          <label class="import-label">Importer données (.json)
-            <input id="import-file" type="file" accept="application/json" style="display:none">
-            <button id="btn-import-json" class="secondary">Choisir fichier</button>
-          </label>
-        </div>
-        <div id="history-msg" class="small-note"></div>
-      </div>
-    </section>
-
-    <!-- PAGE 5 About -->
-    <section id="page-about" class="page">
-      <div class="card">
-        <h2>À propos de l'application</h2>
-        <p>Application de gestion de vente sécurisée et simple d'utilisation.</p>
-        <p><strong>Développé par Dramane Traoré</strong></p>
-        <div class="form-actions">
-          <button id="btn-about-back" class="secondary">Accueil</button>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <small>GESTION DE VENTE ULTRA PLUS - Tata CAMM Solaire</small>
-  </footer>
+    <script src="script.js"></script>
 </body>
 </html>
